@@ -1,8 +1,9 @@
 """main"""
 from fastapi import FastAPI
+from app.routes import auth
 
 from contextlib import asynccontextmanager  # Uncomment if you need to create tables on app start >
-from database import init_database
+from app.database import init_database
 
 
 @asynccontextmanager
@@ -17,4 +18,4 @@ app = FastAPI(
     version="0.0.1"
 )
 
-# app.include_router(task.router)
+app.include_router(auth.router)
