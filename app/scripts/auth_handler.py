@@ -1,3 +1,4 @@
+"""функции для авторизации и контекста залогиненного пользователя"""
 from datetime import datetime, timedelta, timezone
 import jwt
 from jwt.exceptions import InvalidTokenError

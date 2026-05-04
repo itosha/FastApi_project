@@ -1,5 +1,4 @@
 """db_init"""
-from pyexpat.errors import messages
 from sqlmodel import create_engine, Session, select, SQLModel
 from app.schemas.models import User, Product, Basket, Comment
 

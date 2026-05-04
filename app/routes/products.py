@@ -1,12 +1,14 @@
-from fastapi import APIRouter, status, Depends, HTTPException
-from app.scripts.auth_handler import get_current_user
+"""роутер для просмотра продуктов, добавления в корзину"""
 from typing import Annotated
-from sqlmodel import Session, select
+from fastapi import (APIRouter, status, Depends, HTTPException)
+from sqlmodel import (Session, select)
 from sqlalchemy.exc import IntegrityError
-from app.database import get_session
-from app.schemas.models import Product, User, Comment
+from app.scripts.auth_handler import get_current_user
 
-from app.schemas.models_validate import PreviewProductList, PreviewProductComm
+from app.database import get_session
+from app.schemas.models import (Product, User, Comment)
+
+from app.schemas.models_validate import (PreviewProductList, PreviewProductComm)
 
 router = APIRouter(prefix="/products", tags=["Лента товаров"])
 
@@ -18,7 +20,7 @@ def all_products_list(session: Session = Depends(get_session)):
     if products is None or len(products) == 0:
         raise HTTPException(
             status_code=status.HTTP_204_NO_CONTENT,
-            detail=f"The products list is empty. Market is close("
+            detail="The products list is empty. Market is close("
         )
     return {"products_list": products}
 
@@ -59,7 +61,7 @@ def add_comm(product_id: int,
     except IntegrityError as e:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=f"Too long message"
+            detail="Too long message"
         )
     return com
 
@@ -85,7 +87,7 @@ def rewrite_comm(product_id: int, com_id: int,
     elif comm.product_id != product_id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"The selected comment was not left under the selected product"
+            detail="The selected comment was not left under the selected product"
         )
     comm.message = data
     session.commit()
@@ -114,7 +116,7 @@ def delete_comm(product_id: int, com_id: int,
     elif comm.product_id != product_id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"The selected comment was not left under the selected product"
+            detail="The selected comment was not left under the selected product"
         )
     session.delete(comm)
     session.commit()
@@ -133,7 +135,7 @@ def product_to_basket(product_id: int, current_user: Annotated[User, Depends(get
         )
     print('!', current_user.own_basket.products)
     if product.seller_id == current_user.user_id:
-        return f'You can not buy your own products'
+        return 'You can not buy your own products'
     if product not in current_user.own_basket.products:
         current_user.own_basket.products.append(product)
         session.commit()

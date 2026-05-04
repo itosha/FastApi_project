@@ -1,7 +1,7 @@
-from markdown_it.rules_block import table
-from pydantic import BaseModel, Field, BeforeValidator, EmailStr
+"""модели для бд"""
+from pydantic import Field, BeforeValidator, EmailStr
 from pydantic_settings import SettingsConfigDict
-from typing import Optional, Annotated, TypeAlias, List
+from typing import Annotated, TypeAlias, List
 from sqlmodel import SQLModel, Field as SQLField, Relationship
 from sqlalchemy import UniqueConstraint
 

@@ -1,10 +1,12 @@
-from fastapi import APIRouter, status, Depends, HTTPException
-from sqlmodel import Session, select
+"""роутер для аунтефикации"""
+from fastapi import (APIRouter, status, Depends, HTTPException)
+from sqlmodel import (Session, select)
+from sqlalchemy.exc import IntegrityError
 from app.database import get_session
 from app.schemas import models
-from sqlalchemy.exc import IntegrityError
 from psycopg2.errors import UniqueViolation
 from fastapi.security.oauth2 import OAuth2PasswordRequestForm
+
 from app.scripts import auth_handler
 from app.config import settings
 from datetime import timedelta

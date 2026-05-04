@@ -1,6 +1,6 @@
-from pydantic import BaseModel, Field, BeforeValidator, EmailStr
-from pydantic_settings import SettingsConfigDict
-from typing import Optional, Annotated, TypeAlias, List
+"""модели для валидаций"""
+from pydantic import BaseModel, Field, EmailStr
+from typing import List
 
 
 class PreviewUser(BaseModel):

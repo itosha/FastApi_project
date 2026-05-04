@@ -1,6 +1,4 @@
 """main"""
-from itertools import product
-
 from fastapi import FastAPI
 
 from app.routes import auth, products, users
@@ -11,8 +9,13 @@ from app.database import init_database
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-   init_database()
-   yield
+    """
+    иницилизация бд
+    :param app: FastAPI app
+    :return:
+    """
+    init_database()
+    yield
 
 app = FastAPI(
     lifespan=lifespan,
