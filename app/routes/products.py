@@ -120,3 +120,24 @@ def delete_comm(product_id: int, com_id: int,
     session.commit()
 
     return f'Comment with id {com_id} delete'
+
+
+@router.get('/to_basket/{product_id}', status_code=status.HTTP_200_OK, summary = 'Детали товара c отзывами')
+def product_to_basket(product_id: int, current_user: Annotated[User, Depends(get_current_user)],
+                      session: Session = Depends(get_session)):
+    product = session.get(Product, product_id)
+    if product is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Product with id {id} does not exist."
+        )
+    print('!', current_user.own_basket.products)
+    if product.seller_id == current_user.user_id:
+        return f'You can not buy your own products'
+    if product not in current_user.own_basket.products:
+        current_user.own_basket.products.append(product)
+        session.commit()
+        session.refresh(current_user)
+    else:
+        return f'You already have an item in your basket with id {product_id}'
+    return f'Product with {product_id} has been added to your basket /users/me/own_basket'

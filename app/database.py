@@ -35,9 +35,9 @@ def init_database():
 
             test_basket = Basket(owner_id=test_user.user_id)
             session.add(test_basket)
-            # session.flush()
+            session.flush()
             print("b", test_basket.basket_id)
-            test_user.own_basket = test_basket.basket_id
+            test_user.own_basket = test_basket
 
             # 3. Создаем продукты и привязываем их к продавцу
             # Благодаря Relationship, мы можем просто добавить их в список
@@ -65,6 +65,12 @@ def init_database():
             )
             session.add(test_user2)
             session.flush()
+
+            test_basket2 = Basket(owner_id=test_user2.user_id)
+            session.add(test_basket2)
+            session.flush()
+            print("b", test_basket2.basket_id)
+            test_user2.own_basket = test_basket2
 
             com = Comment(message="Не ну а что. Ноут норм.", author_id=test_user2.user_id, product_id=id_1)
             session.add(com)
