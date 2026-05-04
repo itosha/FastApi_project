@@ -28,6 +28,9 @@ class User(SQLModel, table=True):
     password: str | None
     name: str
 
+    wallet: float = Field(default=0, ge=0)
+    num_of_deals: int = Field(default=0, ge=0)
+
     own_basket: "Basket" = Relationship(back_populates="owner")
     own_products: List["Product"] = Relationship(back_populates="seller")
 

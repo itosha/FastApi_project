@@ -6,6 +6,13 @@ from typing import Optional, Annotated, TypeAlias, List
 class PreviewUser(BaseModel):
     email: EmailStr
     name: str
+    user_id: int
+    num_of_deals: int
+    wallet: float
+
+
+class PreviewUserList(BaseModel):
+    user_list: List[PreviewUser]
 
 
 class PreviewComm(BaseModel):

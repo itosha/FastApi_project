@@ -2,7 +2,8 @@
 from itertools import product
 
 from fastapi import FastAPI
-from app.routes import auth, products
+
+from app.routes import auth, products, users
 
 from contextlib import asynccontextmanager
 from app.database import init_database
@@ -22,3 +23,4 @@ app = FastAPI(
 
 app.include_router(auth.router)
 app.include_router(products.router)
+app.include_router(users.router)

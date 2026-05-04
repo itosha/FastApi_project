@@ -4,7 +4,6 @@ from typing import Annotated
 from sqlmodel import Session, select
 from sqlalchemy.exc import IntegrityError
 from app.database import get_session
-from app.schemas import models
 from app.schemas.models import Product, User, Comment
 
 from app.schemas.models_validate import PreviewProductList, PreviewProductComm
@@ -15,7 +14,7 @@ router = APIRouter(prefix="/products", tags=["Лента товаров"])
 @router.get('/', status_code=status.HTTP_200_OK, summary = 'Лента товаров',
             response_model=PreviewProductList)
 def all_products_list(session: Session = Depends(get_session)):
-    products = session.exec(select(models.Product)).all()
+    products = session.exec(select(Product)).all()
     if products is None or len(products) == 0:
         raise HTTPException(
             status_code=status.HTTP_204_NO_CONTENT,
