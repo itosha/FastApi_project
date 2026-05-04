@@ -11,6 +11,7 @@ class PreviewUser(BaseModel):
 class PreviewComm(BaseModel):
     author: str
     message: str
+    comm_id: int
 
 
 class PreviewProduct(BaseModel):

@@ -35,7 +35,7 @@ def product_comm_view(id: int, session: Session = Depends(get_session)):
         )
     answer = {"comments": []}
     for comm in product.comments:
-        answer["comments"].append({"message": comm.message, "author": comm.author.name})
+        answer["comments"].append({"message": comm.message, "author": comm.author.name, "comm_id": comm.comment_id})
     return product.model_dump() | {"seller_name": product.seller.name} | answer
 
 
@@ -68,7 +68,7 @@ def add_comm(product_id: int,
 @router.patch('/{product_id}/{com_id}', status_code=status.HTTP_200_OK,
              summary = 'Редактирование отзыва',
              response_model=Comment)
-def add_comm(product_id: int, com_id: int,
+def rewrite_comm(product_id: int, com_id: int,
              current_user: Annotated[User, Depends(get_current_user)],
              data: str,
              session: Session = Depends(get_session)):
@@ -93,3 +93,31 @@ def add_comm(product_id: int, com_id: int,
     session.refresh(comm)
 
     return comm
+
+
+@router.delete('/{product_id}/{com_id}', status_code=status.HTTP_200_OK,
+             summary = 'Удаление отзыва',
+             response_model=str)
+def delete_comm(product_id: int, com_id: int,
+             current_user: Annotated[User, Depends(get_current_user)],
+             session: Session = Depends(get_session)):
+    comm = session.get(Comment, com_id)
+    if comm is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Comment with {com_id} does not exist."
+        )
+    elif comm.author_id != current_user.user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"You dont have access to delete this comment id: {com_id}."
+        )
+    elif comm.product_id != product_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"The selected comment was not left under the selected product"
+        )
+    session.delete(comm)
+    session.commit()
+
+    return f'Comment with id {com_id} delete'
