@@ -8,12 +8,23 @@ class PreviewUser(BaseModel):
     name: str
 
 
+class PreviewComm(BaseModel):
+    author: str
+    message: str
+
+
 class PreviewProduct(BaseModel):
     product_name: str = Field(description="Название товара", max_length=300)
     price: float = Field(description="Цена за один товар", gt=0)
     amount: int = Field(description="Кол-во товаров в наличии", gt=-1)
-    seller: PreviewUser
+    seller_id: int
+    product_id: int
+
+
+class PreviewProductComm(PreviewProduct):
+    seller_name: str
+    comments: List[PreviewComm]
 
 
 class PreviewProductList(BaseModel):
-    products: List[PreviewProduct]
+    products_list: List[PreviewProduct]
