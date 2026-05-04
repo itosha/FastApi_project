@@ -1,6 +1,7 @@
 from fastapi import APIRouter, status, Depends, HTTPException
 
-from app.schemas.models_validate import PreviewUserList, PreviewProductList
+from app.schemas.models_validate import PreviewUserList, PreviewProductList, PreviewUser, PreviewProduct, \
+    PreviewProductNew
 from app.scripts.auth_handler import get_current_user
 from typing import Annotated
 from sqlmodel import Session, select
@@ -33,7 +34,7 @@ def all_sellers_list(session: Session = Depends(get_session)):
 
 @router.get('/me', status_code=status.HTTP_200_OK,
             summary = 'Ваши данные',
-            response_model=PreviewProductList)
+            response_model=PreviewUser)
 def own_data(current_user: Annotated[User, Depends(get_current_user)],
              session: Session = Depends(get_session)):
     profile = current_user.model_dump()
@@ -43,7 +44,7 @@ def own_data(current_user: Annotated[User, Depends(get_current_user)],
 
 
 @router.patch('/me', status_code=status.HTTP_200_OK,
-            summary='Ваши данные',
+            summary='Поменять имя',
             response_model=PreviewProductList)
 def own_data(new_name: str, current_user: Annotated[User, Depends(get_current_user)],
              session: Session = Depends(get_session)):
@@ -67,6 +68,23 @@ def own_products(current_user: Annotated[User, Depends(get_current_user)],
         )
     arr = sorted(own_list, key=lambda a: a.amount)
     return {"products_list": arr}
+
+
+@router.post('/me/own_products', status_code=status.HTTP_201_CREATED,
+            summary = 'добавление нового товара',
+             response_model=PreviewProduct)
+def own_products_new(new: PreviewProductNew, current_user: Annotated[User, Depends(get_current_user)],
+             session: Session = Depends(get_session)):
+    item = Product(product_name=new.product_name, price=new.price, amount=new.amount, seller_id=current_user.user_id)
+    session.add(item)
+    session.flush()
+
+    current_user.own_products.append(item)
+    session.commit()
+    dict = {"product_name": item.product_name, "price": item.price,
+            "amount": item.amount, "seller_id": item.seller_id,
+            "product_id": item.product_id}
+    return dict
 
 
 @router.get('/me/own_basket', status_code=status.HTTP_200_OK,
@@ -116,6 +134,29 @@ def own_basket_buy(product_id: int, num_of_product: int,
         session.refresh(current_user)
         session.refresh(product)
     return f'Успешная покупка'
+
+
+@router.get('/me/own_basket/{product_id}', status_code=status.HTTP_200_OK,
+            summary = 'Убрать из корзины продукт с id')
+def own_basket_clean(product_id: int,
+               current_user: Annotated[User, Depends(get_current_user)],
+             session: Session = Depends(get_session)):
+    product = session.get(Product, product_id)
+    if product is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Such Product with id {product_id} does not exist at all."
+        )
+    try:
+        current_user.own_basket.products.remove(product)
+        session.commit()
+        session.refresh(current_user)
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Такого продукта id {product_id} в вашей корзине нету."
+        )
+    return f'Продукт {product_id} убран из корзины'
 
 
 @router.patch('/me/wallet', status_code=status.HTTP_200_OK,

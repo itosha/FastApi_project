@@ -26,6 +26,12 @@ def create_user(user: models.User,
         session.add(new_user)
         session.commit()
         session.refresh(new_user)
+
+        test_basket = models.Basket(owner_id=new_user.user_id)
+        session.add(test_basket)
+        session.flush()
+        print("b", test_basket.basket_id)
+        new_user.own_basket = test_basket
         return new_user.user_id
     except IntegrityError as e:
         assert isinstance(e.orig, UniqueViolation)

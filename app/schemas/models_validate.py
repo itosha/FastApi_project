@@ -29,6 +29,12 @@ class PreviewProduct(BaseModel):
     product_id: int
 
 
+class PreviewProductNew(BaseModel):
+    product_name: str = Field(description="Название товара", max_length=300)
+    price: float = Field(description="Цена за один товар", gt=0)
+    amount: int = Field(description="Кол-во товаров в наличии", gt=-1)
+
+
 class PreviewProductComm(PreviewProduct):
     seller_name: str
     comments: List[PreviewComm]
