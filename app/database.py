@@ -66,6 +66,6 @@ def init_database():
             session.add(test_user2)
             session.flush()
 
-            com = Comment(message="Норм такой. Работает ЛОЛ", author_id=test_user2.user_id, product_id=id_1)
+            com = Comment(message="Не ну а что. Ноут норм.", author_id=test_user2.user_id, product_id=id_1)
             session.add(com)
             session.commit()

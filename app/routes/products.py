@@ -1,8 +1,11 @@
 from fastapi import APIRouter, status, Depends, HTTPException
+from app.scripts.auth_handler import get_current_user
+from typing import Annotated
 from sqlmodel import Session, select
+from sqlalchemy.exc import IntegrityError
 from app.database import get_session
 from app.schemas import models
-from app.schemas.models import Product
+from app.schemas.models import Product, User, Comment
 
 from app.schemas.models_validate import PreviewProductList, PreviewProductComm
 
@@ -23,14 +26,40 @@ def all_products_list(session: Session = Depends(get_session)):
 
 @router.get('/{id}', status_code=status.HTTP_200_OK, summary = 'Детали товара c отзывами',
             response_model=PreviewProductComm)
-def all_products_list(id: int, session: Session = Depends(get_session)):
+def product_comm_view(id: int, session: Session = Depends(get_session)):
     product = session.get(Product, id)
     if product is None:
         raise HTTPException(
-            status_code=status.HTTP_204_NO_CONTENT,
-            detail=f"Product with {id} does not exist."
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Product with id {id} does not exist."
         )
     answer = {"comments": []}
     for comm in product.comments:
         answer["comments"].append({"message": comm.message, "author": comm.author.name})
     return product.model_dump() | {"seller_name": product.seller.name} | answer
+
+
+@router.post('/{product_id}', status_code=status.HTTP_201_CREATED,
+             summary = 'Добавление отзыва под товаром',
+             response_model=Comment)
+def add_comm(product_id: int,
+             current_user: Annotated[User, Depends(get_current_user)],
+             data: str,
+             session: Session = Depends(get_session)):
+    product = session.get(Product, product_id)
+    if product is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Product with {id} does not exist."
+        )
+    com = Comment(message=data, product_id=product_id, author_id=current_user.user_id)
+    try:
+        session.add(com)
+        session.commit()
+        session.refresh(com)
+    except IntegrityError as e:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=f"Too long message"
+        )
+    return com

@@ -68,4 +68,4 @@ class Comment(SQLModel, table=True):
     author: "User" = Relationship()
     product_id: int = SQLField(foreign_key="products.product_id")
     product: "Product" = Relationship(back_populates="comments")
-    message: str = Field(description="Отзыв", max_length=400)
+    message: str = SQLField(description="Отзыв")
