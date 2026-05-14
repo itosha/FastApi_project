@@ -36,8 +36,8 @@ def create_user(user: models.User,
         print("b", test_basket.basket_id)
         new_user.own_basket = test_basket
         return new_user.user_id
-    except IntegrityError as e:
-        assert isinstance(e.orig, UniqueViolation)
+    except IntegrityError:
+        session.rollback()
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=f"User with email {user.email} already exists"

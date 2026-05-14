@@ -30,12 +30,11 @@ def init_database():
             )
             session.add(test_user)
             session.flush()
-            print('u', test_user.user_id)
 
             test_basket = Basket(owner_id=test_user.user_id)
             session.add(test_basket)
             session.flush()
-            print("b", test_basket.basket_id)
+
             test_user.own_basket = test_basket
 
             # 3. Создаем продукты и привязываем их к продавцу
@@ -47,7 +46,6 @@ def init_database():
             session.flush()
 
             id_1 = item1.product_id
-            print(id_1)
 
             test_user.own_products = [item1, item2]
 
@@ -68,7 +66,7 @@ def init_database():
             test_basket2 = Basket(owner_id=test_user2.user_id)
             session.add(test_basket2)
             session.flush()
-            print("b", test_basket2.basket_id)
+
             test_user2.own_basket = test_basket2
 
             com = Comment(message="Не ну а что. Ноут норм.", author_id=test_user2.user_id, product_id=id_1)

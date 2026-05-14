@@ -7,7 +7,7 @@ from app.database import init_database
 
 
 @asynccontextmanager
-async def lifespan():
+async def lifespan(app: FastAPI):
     """
     инициализация бд
     """
