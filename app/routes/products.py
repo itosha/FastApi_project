@@ -60,7 +60,7 @@ def add_comm(product_id: int,
         session.refresh(com)
     except IntegrityError:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="Too long message"
         )
     return com

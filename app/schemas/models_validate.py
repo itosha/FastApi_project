@@ -3,6 +3,12 @@ from pydantic import BaseModel, Field, EmailStr
 from typing import List
 
 
+class SignUpUser(BaseModel):
+    email: EmailStr
+    name: str
+    password: str
+
+
 class PreviewUser(BaseModel):
     email: EmailStr
     name: str

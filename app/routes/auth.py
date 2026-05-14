@@ -4,10 +4,9 @@ from fastapi import (APIRouter, status, Depends, HTTPException)
 from fastapi.security.oauth2 import OAuth2PasswordRequestForm
 from sqlmodel import (Session, select)
 from sqlalchemy.exc import IntegrityError
-from psycopg2.errors import UniqueViolation
 
 from app.database import get_session
-from app.schemas import models
+from app.schemas import models, models_validate
 
 from app.scripts import auth_handler
 from app.config import settings
@@ -18,7 +17,7 @@ router = APIRouter(prefix="/auth", tags=["Безопасность"])
 @router.post("/signup", status_code=status.HTTP_201_CREATED,
              response_model=int,
              summary = 'Добавить пользователя')
-def create_user(user: models.User,
+def create_user(user: models_validate.SignUpUser,
                 session: Session = Depends(get_session)):
     new_user = models.User(
         name=user.name,
@@ -39,7 +38,7 @@ def create_user(user: models.User,
     except IntegrityError:
         session.rollback()
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail=f"User with email {user.email} already exists"
         )
 
