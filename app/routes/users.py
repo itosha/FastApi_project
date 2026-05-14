@@ -1,4 +1,4 @@
-"""работа с пользователем, списком их товаров, корзиной, просмотр продавцов"""
+"""Работа с пользователем, списком их товаров, корзиной, просмотр продавцов"""
 from typing import Annotated
 from fastapi import (APIRouter, status, Depends, HTTPException)
 from sqlmodel import (Session, select)
@@ -76,7 +76,7 @@ def own_products(current_user: Annotated[User, Depends(get_current_user)]):
 
 
 @router.post('/me/own_products', status_code=status.HTTP_201_CREATED,
-            summary = 'добавление нового товара',
+            summary = 'Добавление нового товара',
              response_model=PreviewProduct)
 def own_products_new(new: PreviewProductNew,
                      current_user: Annotated[User, Depends(get_current_user)],

@@ -124,7 +124,7 @@ def delete_comm(product_id: int, com_id: int,
     return f'Comment with id {com_id} delete'
 
 
-@router.get('/to_basket/{product_id}', status_code=status.HTTP_200_OK, summary = 'Детали товара c отзывами')
+@router.get('/to_basket/{product_id}', status_code=status.HTTP_200_OK, summary = 'Добавление товара в корзину')
 def product_to_basket(product_id: int, current_user: Annotated[User, Depends(get_current_user)],
                       session: Session = Depends(get_session)):
     product = session.get(Product, product_id)

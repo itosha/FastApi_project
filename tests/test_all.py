@@ -11,6 +11,10 @@ client.fake_user_name = fake.first_name()
 client.new_user_id = 0
 client.auth_token = ""
 
+client.fake_product_name = fake.text()
+client.fake_price = fake.pyfloat(min_value=0.01)
+client.fake_amount = fake.pyint(min_value=1)
+client.new_product_id = 0
 
 def test_signup():
     response = client.post("/auth/signup",
@@ -81,3 +85,28 @@ def test_me_auth():
     response = client.get("/users/me", headers={"Authorization": f"Bearer {client.auth_token}"})
     assert response.status_code == 200
     assert response.json()["email"] == client.fake_user_email
+
+
+def test_add_product_bad_price_amount():
+    response = client.post("/users/me/own_products", headers={"Authorization": f"Bearer {client.auth_token}"},
+                           data={
+                               "product_name": client.fake_product_name,
+                               "price": -1.0,
+                               "amount": client.fake_amount}
+    )
+    assert response.status_code == 422
+    response = client.post("/users/me/own_products", headers={"Authorization": f"Bearer {client.auth_token}"},
+                           data={
+                               "product_name": client.fake_product_name,
+                               "price": 'test',
+                               "amount": client.fake_amount}
+                           )
+    assert response.status_code == 422
+    response = client.post("/users/me/own_products", headers={"Authorization": f"Bearer {client.auth_token}"},
+                           data={
+                               "product_name": client.fake_product_name,
+                               "price": 1,
+                               "amount": -1}
+                           )
+    assert response.status_code == 422
+
