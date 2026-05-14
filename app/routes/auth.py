@@ -1,15 +1,16 @@
 """роутер для аунтефикации"""
+from datetime import timedelta
 from fastapi import (APIRouter, status, Depends, HTTPException)
+from fastapi.security.oauth2 import OAuth2PasswordRequestForm
 from sqlmodel import (Session, select)
 from sqlalchemy.exc import IntegrityError
+from psycopg2.errors import UniqueViolation
+
 from app.database import get_session
 from app.schemas import models
-from psycopg2.errors import UniqueViolation
-from fastapi.security.oauth2 import OAuth2PasswordRequestForm
 
 from app.scripts import auth_handler
 from app.config import settings
-from datetime import timedelta
 
 
 router = APIRouter(prefix="/auth", tags=["Безопасность"])

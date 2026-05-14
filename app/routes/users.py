@@ -43,11 +43,6 @@ def all_sellers_list(session: Session = Depends(get_session)):
             summary = 'Ваши данные',
             response_model=PreviewUser)
 def own_data(current_user: Annotated[User, Depends(get_current_user)]):
-    """
-    Ваши данные
-    :param current_user:
-    :return:
-    """
     profile = current_user.model_dump()
     del profile['password']
 
@@ -57,15 +52,8 @@ def own_data(current_user: Annotated[User, Depends(get_current_user)]):
 @router.patch('/me', status_code=status.HTTP_200_OK,
             summary='Поменять имя',
             response_model=PreviewProductList)
-def own_data(new_name: str, current_user: Annotated[User, Depends(get_current_user)],
+def change_nickname(new_name: str, current_user: Annotated[User, Depends(get_current_user)],
              session: Session = Depends(get_session)):
-    """
-    Поменять имя
-    :param new_name:
-    :param current_user:
-    :param session:
-    :return:
-    """
     current_user.name = new_name
     session.commit()
     session.refresh(current_user)
@@ -76,8 +64,7 @@ def own_data(new_name: str, current_user: Annotated[User, Depends(get_current_us
 @router.get('/me/own_products', status_code=status.HTTP_200_OK,
             summary = 'Список ваших товаров',
             response_model=PreviewProductList)
-def own_products(current_user: Annotated[User, Depends(get_current_user)],
-             session: Session = Depends(get_session)):
+def own_products(current_user: Annotated[User, Depends(get_current_user)]):
     own_list = current_user.own_products
     if own_list is None or len(own_list) == 0:
         raise HTTPException(
@@ -94,13 +81,6 @@ def own_products(current_user: Annotated[User, Depends(get_current_user)],
 def own_products_new(new: PreviewProductNew,
                      current_user: Annotated[User, Depends(get_current_user)],
              session: Session = Depends(get_session)):
-    """
-    добавление нового товара
-    :param new:
-    :param current_user:
-    :param session:
-    :return:
-    """
     item = Product(product_name=new.product_name, price=new.price,
                    amount=new.amount, seller_id=current_user.user_id)
     session.add(item)
@@ -108,21 +88,15 @@ def own_products_new(new: PreviewProductNew,
 
     current_user.own_products.append(item)
     session.commit()
-    dict = {"product_name": item.product_name, "price": item.price,
+    answer = {"product_name": item.product_name, "price": item.price,
             "amount": item.amount, "seller_id": item.seller_id,
             "product_id": item.product_id}
-    return dict
+    return answer
 
 
 @router.get('/me/own_basket', status_code=status.HTTP_200_OK,
             summary = 'Содержимое вашей корзины')
 def own_basket(current_user: Annotated[User, Depends(get_current_user)]):
-    """
-    Содержимое вашей корзины
-    :param current_user:
-    :param session:
-    :return:
-    """
     own_list = current_user.own_basket.products
     if own_list is None or len(own_list) == 0:
         raise HTTPException(
@@ -138,14 +112,7 @@ def own_basket(current_user: Annotated[User, Depends(get_current_user)]):
 def own_basket_buy(product_id: int, num_of_product: int,
                current_user: Annotated[User, Depends(get_current_user)],
              session: Session = Depends(get_session)):
-    """
-    Покупка
-    :param product_id:
-    :param num_of_product:
-    :param current_user:
-    :param session:
-    :return:
-    """
+
     product = session.get(Product, product_id)
     if product is None:
         raise HTTPException(
@@ -161,12 +128,12 @@ def own_basket_buy(product_id: int, num_of_product: int,
         return f'Please add the item to your basket first /products/to_basket/{product_id}'
     if num_of_product > product.amount:
         return f'The seller does not have enough goods {num_of_product}'
-    sum = num_of_product * product.price
-    if sum > current_user.wallet:
-        return f'Недостаточно средств на балансе. Нужно: {sum}. В наличии: {current_user.wallet}'
+    summ = num_of_product * product.price
+    if summ > current_user.wallet:
+        return f'Недостаточно средств на балансе. Нужно: {summ}. В наличии: {current_user.wallet}'
     else:
-        current_user.wallet -= sum
-        product.seller.wallet += sum  # 5 сервиса чисто на воздухе работает - комиссию не берет
+        current_user.wallet -= summ
+        product.seller.wallet += summ  # сервис чисто на воздухе работает - комиссию не берет kappa
         product.seller.num_of_deals += 1
         product.amount -= num_of_product
         current_user.own_basket.products.remove(product)
@@ -181,13 +148,7 @@ def own_basket_buy(product_id: int, num_of_product: int,
 def own_basket_clean(product_id: int,
                current_user: Annotated[User, Depends(get_current_user)],
              session: Session = Depends(get_session)):
-    """
-    Убрать из корзины продукт с id
-    :param product_id:
-    :param current_user:
-    :param session:
-    :return:
-    """
+
     product = session.get(Product, product_id)
     if product is None:
         raise HTTPException(
@@ -230,6 +191,3 @@ def own_wallet(money: float,
         session.commit()
         session.refresh(current_user)
         return f'Вы положили на баланс {money}. На Вашем балансе теперь {res}'
-
-
-

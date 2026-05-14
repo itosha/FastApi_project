@@ -25,14 +25,14 @@ def all_products_list(session: Session = Depends(get_session)):
     return {"products_list": products}
 
 
-@router.get('/{id}', status_code=status.HTTP_200_OK, summary = 'Детали товара c отзывами',
+@router.get('/{product_id}', status_code=status.HTTP_200_OK, summary = 'Детали товара c отзывами',
             response_model=PreviewProductComm)
-def product_comm_view(id: int, session: Session = Depends(get_session)):
-    product = session.get(Product, id)
+def product_comm_view(product_id: int, session: Session = Depends(get_session)):
+    product = session.get(Product, product_id)
     if product is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Product with id {id} does not exist."
+            detail=f"Product with id {product_id} does not exist."
         )
     answer = {"comments": []}
     for comm in product.comments:
@@ -58,7 +58,7 @@ def add_comm(product_id: int,
         session.add(com)
         session.commit()
         session.refresh(com)
-    except IntegrityError as e:
+    except IntegrityError:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="Too long message"
@@ -79,12 +79,12 @@ def rewrite_comm(product_id: int, com_id: int,
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Comment with {com_id} does not exist."
         )
-    elif comm.author_id != current_user.user_id:
+    if comm.author_id != current_user.user_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"You dont have access to rewrite this comment id: {com_id}."
         )
-    elif comm.product_id != product_id:
+    if comm.product_id != product_id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="The selected comment was not left under the selected product"
@@ -108,12 +108,12 @@ def delete_comm(product_id: int, com_id: int,
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Comment with {com_id} does not exist."
         )
-    elif comm.author_id != current_user.user_id:
+    if comm.author_id != current_user.user_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"You dont have access to delete this comment id: {com_id}."
         )
-    elif comm.product_id != product_id:
+    if comm.product_id != product_id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="The selected comment was not left under the selected product"

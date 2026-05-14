@@ -1,3 +1,4 @@
+"""Для обработки конфига проекта"""
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 

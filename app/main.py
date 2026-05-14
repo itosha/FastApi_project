@@ -1,18 +1,15 @@
 """main"""
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
-from app.routes import auth, products, users
-
-from contextlib import asynccontextmanager
+from app.routes import (auth, products, users)
 from app.database import init_database
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan():
     """
-    иницилизация бд
-    :param app: FastAPI app
-    :return:
+    инициализация бд
     """
     init_database()
     yield

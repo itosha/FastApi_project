@@ -1,5 +1,6 @@
 """db_init"""
 from sqlmodel import create_engine, Session, select, SQLModel
+from passlib.context import CryptContext
 from app.schemas.models import User, Product, Basket, Comment
 
 DATABASE_URL = "sqlite:///db.splite"
@@ -13,7 +14,6 @@ def get_session():
 def init_database():
     SQLModel.metadata.create_all(engine)
 
-    from passlib.context import CryptContext
     pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
     with Session(engine) as session:
